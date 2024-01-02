@@ -1,10 +1,9 @@
 spring:
   datasource:
-    dbcp2:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/rest_springboot_java?useTimezone=true&serverTimezone=UTC
-      username: root
-      password: Alex#1985
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/rest_springboot_java?useTimezone=true&serverTimezone=UTC
+    username: root
+    password: Alex#1985
   jpa:
     hibernate:
       ddl-auto: update
