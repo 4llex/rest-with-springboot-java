@@ -6,6 +6,10 @@
 2. path to swagger: http://localhost:8080/swagger-ui/index.html
 
 
-# Spring security table schema
-
+# VO - Value Object Pattern
 ![img.png](img.png)
+
+# Spring security table schema
+![img_2.png](img_2.png)
+
+
