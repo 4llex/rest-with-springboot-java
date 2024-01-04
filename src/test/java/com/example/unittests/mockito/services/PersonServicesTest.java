@@ -1,6 +1,7 @@
 package com.example.unittests.mockito.services;
 
 import com.example.data.vo.v1.PersonVO;
+import com.example.exceptions.RequiredObjectIsNullException;
 import com.example.model.Person;
 import com.example.repositories.PersonRepository;
 import com.example.services.PersonServices;
@@ -78,6 +79,19 @@ class PersonServicesTest {
     }
 
     @Test
+    void createWithNullPerson() {
+        Exception exception = assertThrows(RequiredObjectIsNullException.class, () -> {
+                service.create(null);
+            }
+        );
+
+        String expectedMessage = "It is not allowed to persist a null object!";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
     void update() {
         Person entity = input.mockEntity(1);
 
@@ -99,6 +113,19 @@ class PersonServicesTest {
         assertEquals("First Name Test1", result.getFirstName());
         assertEquals("Last Name Test1", result.getLastName());
         assertEquals("Female", result.getGender());
+    }
+
+    @Test
+    void updateWithNullPerson() {
+        Exception exception = assertThrows(RequiredObjectIsNullException.class, () -> {
+                service.update(null);
+            }
+        );
+
+        String expectedMessage = "It is not allowed to persist a null object!";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
