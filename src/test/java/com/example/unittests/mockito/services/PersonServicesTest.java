@@ -1,5 +1,6 @@
 package com.example.unittests.mockito.services;
 
+import com.example.data.vo.v1.PersonVO;
 import com.example.model.Person;
 import com.example.repositories.PersonRepository;
 import com.example.services.PersonServices;
@@ -37,11 +38,12 @@ class PersonServicesTest {
 
     @Test
     void findById() {
-        Person person = input.mockEntity(1);
+        Person entity = input.mockEntity(1);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(person));
+        when(repository.findById(1L)).thenReturn(Optional.of(entity));
 
         var result = service.findById(1L);
+
         assertNotNull(result);
         assertNotNull(result.getKey());
         assertNotNull(result.getLinks());
@@ -54,18 +56,61 @@ class PersonServicesTest {
     }
 
     @Test
-    void findAll() {
-    }
-
-    @Test
     void create() {
+        Person entity = input.mockEntity(1);
+
+        Person persisted = entity;
+        PersonVO vo = input.mockVO(1);
+
+        when(repository.save(entity)).thenReturn(persisted);
+
+        var result = service.create(vo);
+
+        assertNotNull(result);
+        assertNotNull(result.getKey());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.toString().contains("links: [</api/persons/v1/1>;rel=\"self\"]"));
+        assertEquals("Address Test1", result.getAddress());
+        assertEquals("First Name Test1", result.getFirstName());
+        assertEquals("Last Name Test1", result.getLastName());
+        assertEquals("Female", result.getGender());
     }
 
     @Test
     void update() {
+        Person entity = input.mockEntity(1);
+
+        Person persisted = entity;
+        PersonVO vo = input.mockVO(1);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        when(repository.save(entity)).thenReturn(persisted);
+
+        var result = service.update(vo);
+
+        assertNotNull(result);
+        assertNotNull(result.getKey());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.toString().contains("links: [</api/persons/v1/1>;rel=\"self\"]"));
+        assertEquals("Address Test1", result.getAddress());
+        assertEquals("First Name Test1", result.getFirstName());
+        assertEquals("Last Name Test1", result.getLastName());
+        assertEquals("Female", result.getGender());
     }
 
     @Test
     void delete() {
+        Person entity = input.mockEntity(1);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+        service.findById(1L);
+    }
+
+    @Test
+    void findAll() {
     }
 }
