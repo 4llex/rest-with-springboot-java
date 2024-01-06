@@ -44,6 +44,7 @@ public class PersonController {
     return personService.findAll();
   }
 
+  @CrossOrigin(origins = {"http://localhost:8080"})
   @GetMapping(value = "/{id}", produces = {APPLICATION_JSON, APPLICATION_XML, APPLICATION_YML})
   @Operation(summary = "Finds a Person", description = "Finds a Person", tags = {"People"},
       responses = {
@@ -61,6 +62,7 @@ public class PersonController {
     return personService.findById(id);
   }
 
+  @CrossOrigin(origins = {"http://localhost:8080", "https://erudio.com.br"})
   @PostMapping(consumes = {APPLICATION_JSON, APPLICATION_XML, APPLICATION_YML},
                produces = {APPLICATION_JSON, APPLICATION_XML, APPLICATION_YML})
   @Operation(summary = "Adds a new Person", description = "Adds a new Person by passing a JSON, XML or YML representation of the person", tags = {"People"},
