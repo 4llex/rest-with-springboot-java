@@ -1,6 +1,7 @@
 package com.example.exceptions.handler;
 
 import com.example.exceptions.ExceptionResponse;
+import com.example.exceptions.InvalidJwtAuthenticationException;
 import com.example.exceptions.RequiredObjectIsNullException;
 import com.example.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -17,25 +18,25 @@ import java.util.Date;
 @RestController
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler(Exception.class)
-  public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex, WebRequest request) {
-      ExceptionResponse exceptionResponse = new ExceptionResponse(
-          new Date(),
-          ex.getMessage(),
-          request.getDescription(false)
-      );
-      return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-  }
+    @ExceptionHandler(Exception.class)
+    public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex, WebRequest request) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            new Date(),
+            ex.getMessage(),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
-  @ExceptionHandler(ResourceNotFoundException.class)
-  public final ResponseEntity<ExceptionResponse> handleNotFoundExceptions(Exception ex, WebRequest request) {
-    ExceptionResponse exceptionResponse = new ExceptionResponse(
-        new Date(),
-        ex.getMessage(),
-        request.getDescription(false)
-    );
-    return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
-  }
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public final ResponseEntity<ExceptionResponse> handleNotFoundExceptions(Exception ex, WebRequest request) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            new Date(),
+            ex.getMessage(),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(RequiredObjectIsNullException.class)
     public final ResponseEntity<ExceptionResponse> handleBadRequestExceptions(Exception ex, WebRequest request) {
@@ -45,6 +46,16 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
             request.getDescription(false)
         );
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidJwtAuthenticationException.class)
+    public final ResponseEntity<ExceptionResponse> handleInvalidJwtAuthenticationExceptions(Exception ex, WebRequest request) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            new Date(),
+            ex.getMessage(),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
     }
 
 }
