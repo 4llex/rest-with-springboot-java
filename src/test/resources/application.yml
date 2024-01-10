@@ -16,6 +16,8 @@ spring:
       ddl-auto: none
     show-sql: false
 spring-doc:
-  pathsToMatch: /api/**/v1/**
+  pathsToMatch:
+    - /api/**/v1/**
+    - /auth/**
   swagger-ui:
     use-root-path: true
