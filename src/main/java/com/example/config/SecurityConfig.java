@@ -45,7 +45,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         JwtTokenFilter customFilter = new JwtTokenFilter(tokenProvider);
 
         //@formatter:off
@@ -57,7 +57,7 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(authrizedRequests -> authrizedRequests
                 .requestMatchers("/auth/signin", "/auth/refresh/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/v1/**").authenticated()
+                .requestMatchers("/api/**").authenticated()
                 .requestMatchers("/users").denyAll()
             )
 
