@@ -12,6 +12,7 @@ import java.util.Map;
 @SpringBootApplication
 public class Startup {
 
+	//TODO: Quando tenta get em persons sem estar autenticado, retorna 403 mas o body esta vazio!
 	public static void main(String[] args) {
 		SpringApplication.run(Startup.class, args);
 
@@ -26,11 +27,13 @@ public class Startup {
 		passwordEncoder.setDefaultPasswordEncoderForMatches(pbkdf2Encoder);
 		// End-encoder
 
-		String pass1 = passwordEncoder.encode("admin123");
-		String pass2 = passwordEncoder.encode("admin234");
+		String leandroPass = passwordEncoder.encode("admin123");
+		String flavioPass2 = passwordEncoder.encode("admin234");
+		String alexpass = passwordEncoder.encode("admin123");
 
-		System.out.println(pass1);
-		System.out.println(pass2);
+		System.out.println(leandroPass);
+		System.out.println(flavioPass2);
+		System.out.println(alexpass);
 	}
 
 }
