@@ -145,13 +145,12 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 
 		var content = given().spec(specification)
 			.contentType(TestConfigs.CONTENT_TYPE_JSON)
-			.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ERUDIO)
 			.pathParam("id", person.getId())
-			.when().get("{id}")
-			.then().statusCode(200)
-			.extract()
-			.body()
-			.asString();
+				.when().get("{id}")
+				.then().statusCode(200)
+					.extract()
+						.body()
+						.asString();
 
 		PersonVO persistedPerson = objectMapper.readValue(content, PersonVO.class);
 		person = persistedPerson;
