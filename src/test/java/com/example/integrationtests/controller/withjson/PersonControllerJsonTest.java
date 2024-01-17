@@ -2,7 +2,9 @@ package com.example.integrationtests.controller.withjson;
 
 import com.example.configs.TestConfigs;
 import com.example.integrationtests.testcontainers.AbstractIntegrationTest;
+import com.example.integrationtests.vo.AccountCredentialsVO;
 import com.example.integrationtests.vo.PersonVO;
+import com.example.integrationtests.vo.TokenVO;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -14,7 +16,9 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.DeserializationFeature;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonMappingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -39,21 +43,43 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	@Order(1)
-	void testCreate() throws IOException {
-		mockPerson();
+	@Order(0)
+	void authorization() throws JsonMappingException, JsonProcessingException {
+		AccountCredentialsVO user = new AccountCredentialsVO("leandro", "admin123");
+
+		var accessToken = given()
+			.basePath("/auth/signin")
+				.port(TestConfigs.SERVER_PORT)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.body(user)
+				.when()
+			.post()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.as(TokenVO.class)
+						.getAccessToken();
+
 		specification =  new RequestSpecBuilder()
-			.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ERUDIO)
+			.addHeader(TestConfigs.HEADER_PARAM_AUTHORIZATION, "Bearer " + accessToken)
 			.setBasePath("/api/persons/v1")
 			.setPort(TestConfigs.SERVER_PORT)
 				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
 				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
 			.build();
+	}
+
+	@Test
+	@Order(1)
+	void testCreate() throws IOException {
+		mockPerson();
 
 		var content = given().spec(specification)
 			.contentType(TestConfigs.CONTENT_TYPE_JSON)
-			.body(person)
-			.when().post()
+				.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ERUDIO)
+				.body(person)
+				.when().post()
 			.then().statusCode(200)
 			.extract()
 				.body()
@@ -82,16 +108,10 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 	@Order(2)
 	void testCreateWithWrongOrigin() throws IOException {
 		mockPerson();
-		specification =  new RequestSpecBuilder()
-			.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_SEMERU)
-			.setBasePath("/api/persons/v1")
-			.setPort(TestConfigs.SERVER_PORT)
-			.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-			.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-			.build();
 
 		var content = given().spec(specification)
 			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_SEMERU)
 			.body(person)
 			.when().post()
 			.then().statusCode(403)
@@ -107,16 +127,10 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 	@Order(3)
 	void testFindById() throws IOException {
 		mockPerson();
-		specification =  new RequestSpecBuilder()
-			.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ERUDIO)
-			.setBasePath("/api/persons/v1")
-			.setPort(TestConfigs.SERVER_PORT)
-			.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-			.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-			.build();
 
 		var content = given().spec(specification)
 			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ERUDIO)
 			.pathParam("id", person.getId())
 			.when().get("{id}")
 			.then().statusCode(200)
@@ -147,16 +161,10 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 	@Order(4)
 	void testFindByIdWithWrongOrigin() throws IOException {
 		mockPerson();
-		specification =  new RequestSpecBuilder()
-			.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_SEMERU)
-			.setBasePath("/api/persons/v1")
-			.setPort(TestConfigs.SERVER_PORT)
-			.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-			.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-			.build();
 
 		var content = given().spec(specification)
 			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_SEMERU)
 			.pathParam("id", person.getId())
 			.when().get("{id}")
 			.then().statusCode(403)
