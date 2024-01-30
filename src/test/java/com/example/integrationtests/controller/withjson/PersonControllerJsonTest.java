@@ -96,6 +96,7 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 		assertNotNull(persistedPerson.getLastName());
 		assertNotNull(persistedPerson.getAddress());
 		assertNotNull(persistedPerson.getGender());
+		assertTrue(persistedPerson.getEnabled());
 
 		assertTrue(persistedPerson.getId() > 0);
 
@@ -129,6 +130,7 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 		assertNotNull(persistedPerson.getLastName());
 		assertNotNull(persistedPerson.getAddress());
 		assertNotNull(persistedPerson.getGender());
+		assertTrue(persistedPerson.getEnabled());
 
 		assertEquals(person.getId(), persistedPerson.getId());
 
@@ -140,13 +142,12 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 
 	@Test
 	@Order(3)
-	void testFindById() throws IOException {
-		mockPerson();
+	void testDisablePersonById() throws IOException {
 
 		var content = given().spec(specification)
 			.contentType(TestConfigs.CONTENT_TYPE_JSON)
 			.pathParam("id", person.getId())
-				.when().get("{id}")
+				.when().patch("{id}")
 				.then().statusCode(200)
 					.extract()
 						.body()
@@ -162,6 +163,7 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 		assertNotNull(persistedPerson.getLastName());
 		assertNotNull(persistedPerson.getAddress());
 		assertNotNull(persistedPerson.getGender());
+		assertFalse(persistedPerson.getEnabled());
 
 		assertEquals(person.getId(), persistedPerson.getId());
 
@@ -173,6 +175,40 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 
 	@Test
 	@Order(4)
+	void testFindById() throws IOException {
+		mockPerson();
+
+		var content = given().spec(specification)
+			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.pathParam("id", person.getId())
+			.when().get("{id}")
+			.then().statusCode(200)
+			.extract()
+			.body()
+			.asString();
+
+		PersonVO persistedPerson = objectMapper.readValue(content, PersonVO.class);
+		person = persistedPerson;
+
+		assertNotNull(persistedPerson);
+
+		assertNotNull(persistedPerson.getId());
+		assertNotNull(persistedPerson.getFirstName());
+		assertNotNull(persistedPerson.getLastName());
+		assertNotNull(persistedPerson.getAddress());
+		assertNotNull(persistedPerson.getGender());
+		assertFalse(persistedPerson.getEnabled());
+
+		assertEquals(person.getId(), persistedPerson.getId());
+
+		assertEquals("Eric", persistedPerson.getFirstName());
+		assertEquals("da Silva", persistedPerson.getLastName());
+		assertEquals("Wisconsin", persistedPerson.getAddress());
+		assertEquals("Male", persistedPerson.getGender());
+	}
+
+	@Test
+	@Order(5)
 	void testDelete() throws IOException {
 
 		given().spec(specification)
@@ -185,7 +221,7 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	@Order(5)
+	@Order(6)
 	void testFindAll() throws IOException {
 
 		var content = given().spec(specification)
@@ -205,6 +241,7 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 		assertNotNull(foundPersonOne.getLastName());
 		assertNotNull(foundPersonOne.getAddress());
 		assertNotNull(foundPersonOne.getGender());
+		assertTrue(foundPersonOne.getEnabled());
 
 		assertEquals(1, foundPersonOne.getId());
 
@@ -220,6 +257,7 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 		assertNotNull(foundPersonFive.getLastName());
 		assertNotNull(foundPersonFive.getAddress());
 		assertNotNull(foundPersonFive.getGender());
+		assertTrue(foundPersonFive.getEnabled());
 
 		assertEquals(10, foundPersonFive.getId());
 
@@ -230,7 +268,7 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	@Order(6)
+	@Order(7)
 	void testFindAllWithoutToken() throws IOException {
 		RequestSpecification specificationWithoutToken =  new RequestSpecBuilder()
 			.setBasePath("/api/persons/v1")
@@ -250,6 +288,7 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 		person.setLastName("Forman");
 		person.setAddress("Wisconsin");
 		person.setGender("Male");
+		person.setEnabled(true);
 	}
 
 }
