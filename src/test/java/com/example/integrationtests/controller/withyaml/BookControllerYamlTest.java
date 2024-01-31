@@ -1,30 +1,14 @@
 package com.example.integrationtests.controller.withyaml;
 
-import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import com.example.configs.TestConfigs;
 import com.example.integrationtests.controller.withyaml.mapper.YMLMapper;
 import com.example.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.example.integrationtests.vo.AccountCredentialsVO;
 import com.example.integrationtests.vo.BookVO;
+import com.example.integrationtests.vo.PagedModelBook;
 import com.example.integrationtests.vo.TokenVO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -33,6 +17,17 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Date;
+
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
@@ -209,7 +204,7 @@ public class BookControllerYamlTest extends AbstractIntegrationTest {
 	@Test
 	@Order(6)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
-		var response = given()
+		var wrapper = given()
 			.config(
 				RestAssuredConfig
 					.config()
@@ -218,38 +213,41 @@ public class BookControllerYamlTest extends AbstractIntegrationTest {
 			.spec(specification)
 			.contentType(TestConfigs.CONTENT_TYPE_YML)
 			.accept(TestConfigs.CONTENT_TYPE_YML)
+			.queryParams("page",0, //TODO: if change pageable params, assertions also need to change
+					"size",12,
+							"direction","asc")
 			.when()
 			.get()
 			.then()
 			.statusCode(200)
 			.extract()
 			.body()
-			.as(BookVO[].class, objectMapper);
+			.as(PagedModelBook.class, objectMapper);
 
 
-		List<BookVO> content = Arrays.asList(response);
+		var books = wrapper.getContent();
 
-		BookVO foundBookOne = content.get(0);
+		BookVO foundBookOne = books.get(0);
 
 		assertNotNull(foundBookOne.getId());
 		assertNotNull(foundBookOne.getTitle());
 		assertNotNull(foundBookOne.getAuthor());
 		assertNotNull(foundBookOne.getPrice());
 		assertTrue(foundBookOne.getId() > 0);
-		assertEquals("Working effectively with legacy code", foundBookOne.getTitle());
-		assertEquals("Michael C. Feathers", foundBookOne.getAuthor());
-		assertEquals(49.00, foundBookOne.getPrice());
+		assertEquals("Implantando a governança de TI", foundBookOne.getTitle());
+		assertEquals("Aguinaldo Aragon Fernandes e Vladimir Ferraz de Abreu", foundBookOne.getAuthor());
+		assertEquals(54.0, foundBookOne.getPrice());
 
-		BookVO foundBookFive = content.get(4);
+		BookVO foundBookFive = books.get(4);
 
 		assertNotNull(foundBookFive.getId());
 		assertNotNull(foundBookFive.getTitle());
 		assertNotNull(foundBookFive.getAuthor());
 		assertNotNull(foundBookFive.getPrice());
 		assertTrue(foundBookFive.getId() > 0);
-		assertEquals("Code complete", foundBookFive.getTitle());
-		assertEquals("Steve McConnell", foundBookFive.getAuthor());
-		assertEquals(58.0, foundBookFive.getPrice());
+		assertEquals("Head First Design Patterns", foundBookFive.getTitle());
+		assertEquals("Eric Freeman, Elisabeth Freeman, Kathy Sierra, Bert Bates", foundBookFive.getAuthor());
+		assertEquals(110.0, foundBookFive.getPrice());
 	}
 
 	private void mockBook() {

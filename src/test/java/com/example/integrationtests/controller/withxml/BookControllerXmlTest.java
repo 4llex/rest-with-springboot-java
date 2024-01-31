@@ -1,13 +1,20 @@
 package com.example.integrationtests.controller.withxml;
 
-import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Date;
-import java.util.List;
-
+import com.example.configs.TestConfigs;
+import com.example.data.vo.v1.security.TokenVO;
+import com.example.integrationtests.testcontainers.AbstractIntegrationTest;
+import com.example.integrationtests.vo.AccountCredentialsVO;
+import com.example.integrationtests.vo.BookVO;
+import com.example.integrationtests.vo.PagedModelBook;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -15,22 +22,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import java.util.Date;
 
-import com.example.configs.TestConfigs;
-import com.example.data.vo.v1.security.TokenVO;
-import com.example.integrationtests.testcontainers.AbstractIntegrationTest;
-import com.example.integrationtests.vo.AccountCredentialsVO;
-import com.example.integrationtests.vo.BookVO;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.filter.log.LogDetail;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
-import io.restassured.specification.RequestSpecification;
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
@@ -188,6 +183,9 @@ public class BookControllerXmlTest extends AbstractIntegrationTest {
 		var content = given().spec(specification)
 			.contentType(TestConfigs.CONTENT_TYPE_XML)
 			.accept(TestConfigs.CONTENT_TYPE_XML)
+			.queryParams("page",0, //TODO: if change pageable params, assertions also need to change
+					"size",12,
+							"direction","asc")
 			.when()
 			.get()
 			.then()
@@ -196,7 +194,8 @@ public class BookControllerXmlTest extends AbstractIntegrationTest {
 			.body()
 			.asString();
 
-		List<BookVO> books = objectMapper.readValue(content, new TypeReference<List<BookVO>>() {});
+		PagedModelBook wrapper = objectMapper.readValue(content, PagedModelBook.class);
+		var books = wrapper.getContent();
 
 		BookVO foundBookOne = books.get(0);
 
@@ -205,9 +204,9 @@ public class BookControllerXmlTest extends AbstractIntegrationTest {
 		assertNotNull(foundBookOne.getAuthor());
 		assertNotNull(foundBookOne.getPrice());
 		assertTrue(foundBookOne.getId() > 0);
-		assertEquals("Working effectively with legacy code", foundBookOne.getTitle());
-		assertEquals("Michael C. Feathers", foundBookOne.getAuthor());
-		assertEquals(49.00, foundBookOne.getPrice());
+		assertEquals("Implantando a governança de TI", foundBookOne.getTitle());
+		assertEquals("Aguinaldo Aragon Fernandes e Vladimir Ferraz de Abreu", foundBookOne.getAuthor());
+		assertEquals(54.0, foundBookOne.getPrice());
 
 		BookVO foundBookFive = books.get(4);
 
@@ -216,9 +215,9 @@ public class BookControllerXmlTest extends AbstractIntegrationTest {
 		assertNotNull(foundBookFive.getAuthor());
 		assertNotNull(foundBookFive.getPrice());
 		assertTrue(foundBookFive.getId() > 0);
-		assertEquals("Code complete", foundBookFive.getTitle());
-		assertEquals("Steve McConnell", foundBookFive.getAuthor());
-		assertEquals(58.0, foundBookFive.getPrice());
+		assertEquals("Head First Design Patterns", foundBookFive.getTitle());
+		assertEquals("Eric Freeman, Elisabeth Freeman, Kathy Sierra, Bert Bates", foundBookFive.getAuthor());
+		assertEquals(110.0, foundBookFive.getPrice());
 	}
 
 
