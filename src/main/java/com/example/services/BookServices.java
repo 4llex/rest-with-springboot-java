@@ -10,6 +10,10 @@ import com.example.repositories.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.logging.Logger;
@@ -22,9 +26,13 @@ public class BookServices {
 
   @Autowired
   private BookRepository bookRepository;
+
+  @Autowired
+  private PagedResourcesAssembler<BookVO> assembler;
+
   private final Logger logger = Logger.getLogger(BookServices.class.getName());
 
-  public Page<BookVO> findAll(Pageable pageable) {
+  public PagedModel<EntityModel<BookVO>> findAll(Pageable pageable) {
     logger.info("Finding All book!");
 
     var bookPage = bookRepository.findAll(pageable);
@@ -34,7 +42,13 @@ public class BookServices {
             linkTo(methodOn(BookController.class)
                 .findById(b.getKey())).withSelfRel()));
 
-    return bookVosPage;
+    Link link = linkTo(
+        methodOn(BookController.class)
+            .findAll(pageable.getPageNumber(),
+                pageable.getPageSize(),
+                "asc")).withSelfRel();
+
+    return assembler.toModel(bookVosPage, link);
   }
 
   public BookVO findById(Long id) {
