@@ -9,8 +9,11 @@ import com.example.model.Person;
 import com.example.repositories.PersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.logging.Logger;
@@ -23,9 +26,13 @@ public class PersonServices {
 
   @Autowired
   private PersonRepository personRepository;
+
+  @Autowired
+  private PagedResourcesAssembler<PersonVO> assembler;
+
   private final Logger logger = Logger.getLogger(PersonServices.class.getName());
 
-  public Page<PersonVO> findAll(Pageable pageable) {
+  public PagedModel<EntityModel<PersonVO>> findAll(Pageable pageable) {
     logger.info("Finding All person!");
 
     var personPage = personRepository.findAll(pageable);
@@ -35,7 +42,13 @@ public class PersonServices {
             linkTo(methodOn(PersonController.class)
                 .findById(p.getKey())).withSelfRel()));
 
-    return personVosPage;
+    Link link = linkTo(
+        methodOn(PersonController.class)
+            .findAll(pageable.getPageNumber(),
+                      pageable.getPageSize(),
+                      "asc")).withSelfRel();
+
+    return assembler.toModel(personVosPage, link);
   }
 
   public PersonVO findById(Long id) {
