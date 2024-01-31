@@ -8,9 +8,10 @@ import com.example.mapper.DozerMapper;
 import com.example.model.Book;
 import com.example.repositories.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -23,13 +24,17 @@ public class BookServices {
   private BookRepository bookRepository;
   private final Logger logger = Logger.getLogger(BookServices.class.getName());
 
-  public List<BookVO> findAll() {
+  public Page<BookVO> findAll(Pageable pageable) {
     logger.info("Finding All book!");
 
-    var books = DozerMapper.parseListObjects(bookRepository.findAll(), BookVO.class);
-    books.stream()
-        .forEach(p -> p.add(linkTo(methodOn(BookController.class).findById(p.getKey())).withSelfRel()));
-    return books;
+    var bookPage = bookRepository.findAll(pageable);
+    var bookVosPage = bookPage.map(b -> DozerMapper.parseObject(b, BookVO.class));
+    bookVosPage.map(
+        b -> b.add(
+            linkTo(methodOn(BookController.class)
+                .findById(b.getKey())).withSelfRel()));
+
+    return bookVosPage;
   }
 
   public BookVO findById(Long id) {
