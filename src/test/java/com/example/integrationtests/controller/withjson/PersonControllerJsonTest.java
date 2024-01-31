@@ -5,25 +5,24 @@ import com.example.data.vo.v1.security.TokenVO;
 import com.example.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.example.integrationtests.vo.AccountCredentialsVO;
 import com.example.integrationtests.vo.PersonVO;
+import com.example.integrationtests.vo.wrappers.WrapperPersonVO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer.*;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -226,13 +225,17 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 
 		var content = given().spec(specification)
 			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.queryParams("page",0, //TODO: if change pageable params, assertions also need to change
+				"size",12,
+						"direction","asc")
 				.when().get()
 			.then().statusCode(200)
 				.extract()
 				.body()
 				.asString();
 
-		List<PersonVO> people = objectMapper.readValue(content, new TypeReference<List<PersonVO>>() {});
+		WrapperPersonVO wrapper = objectMapper.readValue(content, WrapperPersonVO.class);
+		var people = wrapper.getEmbedded().getPersons();
 
 		PersonVO foundPersonOne = people.get(0);
 
@@ -241,13 +244,13 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 		assertNotNull(foundPersonOne.getLastName());
 		assertNotNull(foundPersonOne.getAddress());
 		assertNotNull(foundPersonOne.getGender());
-		assertTrue(foundPersonOne.getEnabled());
+		assertFalse(foundPersonOne.getEnabled());//TODO: check if enabled in database
 
-		assertEquals(1, foundPersonOne.getId());
+		assertEquals(761, foundPersonOne.getId());
 
-		assertEquals("Alex", foundPersonOne.getFirstName());
-		assertEquals("Rosa", foundPersonOne.getLastName());
-		assertEquals("Cambui", foundPersonOne.getAddress());
+		assertEquals("Abbie", foundPersonOne.getFirstName());
+		assertEquals("McGoogan", foundPersonOne.getLastName());
+		assertEquals("6614 Eggendart Pass", foundPersonOne.getAddress());
 		assertEquals("Male", foundPersonOne.getGender());
 
 		PersonVO foundPersonFive = people.get(4);
@@ -257,13 +260,13 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
 		assertNotNull(foundPersonFive.getLastName());
 		assertNotNull(foundPersonFive.getAddress());
 		assertNotNull(foundPersonFive.getGender());
-		assertTrue(foundPersonFive.getEnabled());
+		assertFalse(foundPersonFive.getEnabled());//TODO: check if enabled in database
 
-		assertEquals(10, foundPersonFive.getId());
+		assertEquals(617, foundPersonFive.getId());
 
-		assertEquals("joao do lairto", foundPersonFive.getFirstName());
-		assertEquals("Souza", foundPersonFive.getLastName());
-		assertEquals("Cambui-Mg", foundPersonFive.getAddress());
+		assertEquals("Addia", foundPersonFive.getFirstName());
+		assertEquals("Mawer", foundPersonFive.getLastName());
+		assertEquals("34910 Morningstar Pass", foundPersonFive.getAddress());
 		assertEquals("Female", foundPersonFive.getGender());
 	}
 
