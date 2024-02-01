@@ -350,6 +350,49 @@ public class PersonControllerYamlTest extends AbstractIntegrationTest {
 			.then().statusCode(403);
 	}
 
+	@Test
+	@Order(8)
+	public void testFindByName() throws IOException {
+
+		var wrapper = given().spec(specification)
+			.config(
+				RestAssuredConfig
+					.config()
+					.encoderConfig(EncoderConfig.encoderConfig()
+						.encodeContentTypeAs(
+							TestConfigs.CONTENT_TYPE_YML,
+							ContentType.TEXT)))
+			.contentType(TestConfigs.CONTENT_TYPE_YML)
+			.pathParam("firstName", "Alex")
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+			.queryParams("page",0, //TODO: if change pageable params, assertions also need to change
+					"size",12,
+							"direction","asc")
+			.when().get("findPersonByName/{firstName}")
+			.then().statusCode(200)
+			.extract()
+			.body()
+			.as(PagedModelPerson.class, objectMapper);
+
+		var people = wrapper.getContent();
+
+		PersonVO foundPersonOne = people.get(0);
+
+		assertNotNull(foundPersonOne.getId());
+		assertNotNull(foundPersonOne.getFirstName());
+		assertNotNull(foundPersonOne.getLastName());
+		assertNotNull(foundPersonOne.getAddress());
+		assertNotNull(foundPersonOne.getGender());
+		assertTrue(foundPersonOne.getEnabled());//TODO: check if enabled in database
+
+		assertEquals(1, foundPersonOne.getId());
+
+		assertEquals("Alex", foundPersonOne.getFirstName());
+		assertEquals("Rosa", foundPersonOne.getLastName());
+		assertEquals("Cambui", foundPersonOne.getAddress());
+		assertEquals("Male", foundPersonOne.getGender());
+	}
+
 	private void mockPerson() {
 		person.setFirstName("Eric");
 		person.setLastName("Forman");
