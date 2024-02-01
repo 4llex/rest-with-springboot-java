@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface PersonRepository extends JpaRepository<Person, Long> {
 
-    @Modifying
+    @Modifying // Essa tag é utilizada em ações que modificam o DB, por isso a query de consulta abaixo nao utiliza!
     @Query("UPDATE Person p SET p.enabled = false WHERE p.id =:id")
     void disablePerson(@Param("id") Long id);
 
