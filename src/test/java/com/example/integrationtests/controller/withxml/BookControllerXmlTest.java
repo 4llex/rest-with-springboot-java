@@ -241,6 +241,37 @@ public class BookControllerXmlTest extends AbstractIntegrationTest {
 			.statusCode(403);
 	}
 
+	@Test
+	@Order(7)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+
+		var content = given().spec(specification)
+			.contentType(TestConfigs.CONTENT_TYPE_XML)
+			.accept(TestConfigs.CONTENT_TYPE_XML)
+			.queryParams("page",0, //TODO: if change pageable params, assertions also need to change
+					"size",10,
+							"direction","asc")
+			.when()
+			.get()
+			.then()
+			.statusCode(200)
+			.extract()
+			.body()
+			.asString();
+
+		assertTrue(content.contains("<links><rel>self</rel><href>http://localhost:8888/api/books/v1/15</href></links>"));
+		assertTrue(content.contains("<links><rel>self</rel><href>http://localhost:8888/api/books/v1/9</href></links>"));
+		assertTrue(content.contains("<links><rel>self</rel><href>http://localhost:8888/api/books/v1/8</href></links>"));
+
+		assertTrue(content.contains("<links><rel>first</rel><href>http://localhost:8888/api/books/v1?direction=asc&amp;page=0&amp;size=10&amp;sort=author,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>self</rel><href>http://localhost:8888/api/books/v1?page=0&amp;size=10&amp;direction=asc</href></links>"));
+		assertTrue(content.contains("<links><rel>next</rel><href>http://localhost:8888/api/books/v1?direction=asc&amp;page=1&amp;size=10&amp;sort=author,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>last</rel><href>http://localhost:8888/api/books/v1?direction=asc&amp;page=1&amp;size=10&amp;sort=author,asc</href></links>"));
+
+		assertTrue(content.contains("<page><size>10</size><totalElements>15</totalElements><totalPages>2</totalPages><number>0</number></page>"));
+
+	}
+
 	private void mockBook() {
 		book.setTitle("Docker Deep Dive");
 		book.setAuthor("Nigel Poulton");

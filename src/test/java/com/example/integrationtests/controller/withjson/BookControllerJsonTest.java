@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
 import java.util.Date;
 
 import static io.restassured.RestAssured.given;
@@ -211,6 +212,33 @@ public class BookControllerJsonTest extends AbstractIntegrationTest {
 		assertEquals("Head First Design Patterns", foundBookFive.getTitle());
 		assertEquals("Eric Freeman, Elisabeth Freeman, Kathy Sierra, Bert Bates", foundBookFive.getAuthor());
 		assertEquals(110.0, foundBookFive.getPrice());
+	}
+
+	@Test
+	@Order(7)
+	void testHATEOAS() throws IOException {
+
+		var content = given().spec(specification)
+			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.queryParams("page",0, //TODO: if change pageable params, assertions also need to change
+					"size",10,
+							"direction","asc")
+			.when().get()
+			.then().statusCode(200)
+			.extract()
+			.body()
+			.asString();
+
+		assertTrue(content.contains("\"_links\":{\"self\":{\"href\":\"http://localhost:8888/api/books/v1/15\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"self\":{\"href\":\"http://localhost:8888/api/books/v1/9\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"self\":{\"href\":\"http://localhost:8888/api/books/v1/8\"}}}"));
+
+		assertTrue(content.contains("\"page\":{\"size\":10,\"totalElements\":15,\"totalPages\":2,\"number\":0}}"));
+		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/books/v1?direction=asc&page=1&size=10&sort=author,asc\"}}"));
+		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/books/v1?direction=asc&page=1&size=10&sort=author,asc\"}"));
+		assertTrue(content.contains("\"self\":{\"href\":\"http://localhost:8888/api/books/v1?page=0&size=10&direction=asc\"}"));
+		//assertTrue(content.contains("\"prev\":{\"href\":\"http://localhost:8888/api/books/v1?direction=asc&page=2&size=10&sort=author,asc\"}"));
+		assertTrue(content.contains("\"first\":{\"href\":\"http://localhost:8888/api/books/v1?direction=asc&page=0&size=10&sort=author,asc\"}"));
 	}
 
 	private void mockBook() {
