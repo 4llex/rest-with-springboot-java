@@ -13,6 +13,10 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>UdemySpringJava</name>
 	<description>Demo project for Spring Boot using Java</description>
+
+
+<!-- skipTest ahen generate jar	https://maven.apache.org/surefire/maven-surefire-plugin/examples/skipping-tests.html-->
+<!--	mvn clean package -DskipTests-->
 	<properties>
 		<java.version>17</java.version>
 		<dozer.version>6.4.0</dozer.version>
