@@ -23,7 +23,7 @@ public class AbstractIntegrationTest {
             //a aplicação em execução usa a 8080 e a aplicação em teste usa a 8888.
             //Escolhemos isso pra ser possível executar os testes de integração mesmo com a aplicação de pé.
             //https://github.com/testcontainers/testcontainers-java/issues/6436
-            Startables.deepStart(Stream.of(mysql.withStartupTimeoutSeconds(500))).join();
+            Startables.deepStart(Stream.of(mysql.withStartupTimeoutSeconds(650))).join();
         }
 
         private static Map<String, String> createConnectionConfiguration() {

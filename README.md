@@ -17,3 +17,14 @@
 ![img_1.png](img_1.png)
 
 
+#Running using docker compose
+ >docker compose up -d --build  (this command must be executed in the dir of docker-compose.yml)
+
+#List stacks in execution
+ >docker compose ls
+    
+#List containers running
+ >docker ps
+ 
+#Show log from a specific container
+ >docker logs container_id
