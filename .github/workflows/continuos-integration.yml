@@ -41,7 +41,7 @@ jobs:
       working-directory: ./
       run: docker compose build
 
-    - name: Push to Docker hub conatiner regeistry
+    - name: Push to Docker hub conatiner registry
       run: |
         docker tag ${{ secrets.DOCKER_USERNAME }}/rest-springboot-java:latest ${{ secrets.DOCKER_USERNAME }}/rest-springboot-java:${{ github.run_id }}
 
