@@ -34,7 +34,7 @@ jobs:
         cache: maven
         
     - name: Build application jar
-      working-directory: ./UdemySpringJava
+      working-directory: ./
       run: mvn clean package 
 
     - name: Docker Compose build
