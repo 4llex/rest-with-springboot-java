@@ -46,5 +46,5 @@ jobs:
         docker tag ${{ secrets.DOCKER_USERNAME }}/rest-springboot-java:latest ${{ secrets.DOCKER_USERNAME }}/rest-springboot-java:${{ github.run_id }}
 
         docker push ${{ secrets.DOCKER_USERNAME }}/rest-springboot-java:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/rest-springboot-java:${{ github.run_id }
+        docker push ${{ secrets.DOCKER_USERNAME }}/rest-springboot-java:${{ github.run_id }}
 
