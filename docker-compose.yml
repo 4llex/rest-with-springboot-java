@@ -21,7 +21,7 @@ services:
   rest-springboot-java:
     image: 4llex/rest-springboot-java
     restart: always
-    build: ./UdemySpringJava
+    build: ./
     working_dir: /UdemySpringJava
     environment:
       TZ: America/Sao_Paulo

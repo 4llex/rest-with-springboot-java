@@ -20,8 +20,11 @@
 #Running using docker compose
  >docker compose up -d --build  (this command must be executed in the dir of docker-compose.yml)
 
+#Stop docker compose stack
+>docker compose up -d --build  (this command must be executed in the dir of docker-compose.yml)
+
 #List stacks in execution
- >docker compose ls
+ >docker-compose stop
     
 #List containers running
  >docker ps
