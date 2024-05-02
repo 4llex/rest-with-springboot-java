@@ -28,3 +28,8 @@
  
 #Show log from a specific container
  >docker logs container_id
+
+#Push docker image to dockerhub
+>docker push 4llex/rest-springboot-java
+
+[![Docker Hub Repo](https://img.shields.io/docker/pulls/4llex/rest-springboot-java.svg)](https://hub.docker.com/repository/docker/4llex/rest-springboot-java)
